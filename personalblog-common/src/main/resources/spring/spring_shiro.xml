@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	
+	<!-- 配置权限管理器 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+	<!-- ref对应我们写的realm  -->
+		<property name="realms">
+			<list>
+				<bean class="common.security.BlogRealm" />
+			</list>
+		</property>
+		<!-- 使用下面配置的缓存管理器 -->
+		<property name="cacheManager" ref="shiroCacheManager"></property>
+	</bean>
+	<!--自定义的filter-->
+	<bean id="roleOrFilter" class="common.security.CustomRolesAuthorizationFilter"></bean>
+	<!-- 配置shiro的过滤器工厂类，id- shiroFilter要和我们在web.xml中配置的过滤器一致 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- 调用我们配置的权限管理器 -->
+		<property name="securityManager" ref="securityManager"></property>
+		<!-- 配置我们的登录请求地址 -->
+		<property name="loginUrl" value="/front/login"></property>
+		<!-- 配置我们在登录页登录成功后的跳转地址，如果你访问的是非/login地址，则跳到您访问的地址 -->
+		<property name="successUrl" value="/indexlist"></property>
+		<!-- 如果您请求的资源不再您的权限范围，则跳转到/403请求地址 -->
+		<property name="unauthorizedUrl" value="/resources/errors/403.html"></property>
+		
+		<!-- 权限配置 -->
+		<property name="filterChainDefinitions">
+			<value>
+				/back/login=anon
+				/front/login=anon
+				/front/user/**=authc
+				/back/**=authc,roles[admin]
+				<!-- 通知需要登录方能查看 -->
+				/noticeList=authc
+				/setAllReaded=authc
+				/deleteNotices=authc
+				/deleteAllNotices=authc
+				/alldeleteNot=authc
+				<!-- 投稿博客的查询 -->
+				/front/blog/findAllBlogByuserId=authc
+				/comment/addreply=authc
+				/comment/add=authc
+				/comment/delete=authc
+				/**=anon
+			</value>
+		</property>
+		
+		<property name="filters" >
+         	<map>
+         		<entry key="roleOrFilter" value-ref="roleOrFilter"></entry>
+         	</map>
+       </property>
+       
+       
+	</bean>
+	
+	<bean id="shiroCacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager" />
+	<!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+	
+	
+	
+	<!-- AOP式方法级权限检查 
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+		<property name="proxyTargetClass" value="true" />
+	</bean>-->
+	<!-- 
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+		-->
+</beans>

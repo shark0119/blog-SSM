@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"  xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd"
+	default-lazy-init="true">
+	
+	<description>Spring Bean</description>
+	<!-- 国际化配置  9.17 zcb -->
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+	  <property name="basenames">
+	    <list>
+        <value>classpath*:i18n/**</value>
+	    </list>
+	  </property>
+	  <property name="defaultEncoding" value="UTF-8" />
+	  <property name="cacheSeconds" value="3600" />
+  </bean>
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+	<!-- 自定义的Filter -->
+	<bean id="CustomFilter" class="common.filter.CustomFilter" />
+	
+	<!-- 图片生成类 Begin -->
+	<bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">
+		<property name="config">
+			<bean class="com.google.code.kaptcha.util.Config">
+				<constructor-arg>
+					<props>
+						<prop key="kaptcha.border">no</prop>
+						<prop key="kaptcha.border.color">105,179,90</prop>
+						<prop key="kaptcha.textproducer.font.color">black</prop>
+						<prop key="kaptcha.image.width">200</prop>
+						<prop key="kaptcha.image.height">50</prop>
+						<prop key="kaptcha.textproducer.char.string">1234567890</prop>
+						<prop key="kaptcha.textproducer.font.size">50</prop>
+						<prop key="kaptcha.textproducer.char.length">4</prop>
+						<prop key="kaptcha.textproducer.font.names">宋体,楷体,微软雅黑</prop>
+					</props>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	 
+	 <!-- 自定义objectMapper,来过滤为NULL的值,不需要输出 -->
+	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+		<property name="serializationInclusion">
+			<value type="com.fasterxml.jackson.annotation.JsonInclude$Include">NON_NULL</value>
+		</property>
+	</bean>
+	
+	
+	
+	
+</beans>

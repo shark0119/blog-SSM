@@ -1,0 +1,46 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.ILabelDao">
+	<select id="getLabelByLabelName" parameterType="String" 
+		resultType="com.hfxt.domain.vo.LabelVo">
+		select * from label where labelName=#{labelName}
+	</select>
+	<insert id="saveLabel" parameterType="com.hfxt.domain.vo.LabelVo">
+		insert into label (labelName) values (#{labelName})
+	</insert>
+	<insert id="saveLabelForUser">
+		insert into userlabel(labelId, creatorId) values (#{labelId}, #{userId})
+	</insert>
+	<insert id="saveLabelForBlog">
+		insert into blogLabel(blogId, labelId) values (#{blogId}, #{labelId})
+	</insert>
+	<delete id="deleteLabelByBlogId" parameterType="Integer">
+		delete from blogLabel 
+		<where>
+			<if test="blogId!=null">
+				and blogId=#{blogId}
+			</if>
+			<if test="labelId!=null">
+				and labelId=#{labelId}
+			</if>
+		</where>
+	</delete>
+	<delete id="deleteLabelByUserId" parameterType="Integer">
+		delete from userLabel 
+		<where>
+			<if test="userId!=null">
+				and creatorId=#{userId}
+			</if>
+			<if test="labelId!=null">
+				and labelId=#{labelId}
+			</if>
+		</where>
+	</delete>
+	<select id="getLabelsByBlogId" resultType="com.hfxt.domain.vo.LabelVo">
+		select l.* from blogLabel b, label l
+		where b.labelId=l.labelId and b.blogId=#{blogId}
+	</select>
+	<select id="getLabelsByUserId" resultType="com.hfxt.domain.vo.LabelVo">
+		select l.* from label l, userLabel u
+		where u.labelId=l.labelId and u.creatorId=#{userId}
+	</select>
+</mapper>

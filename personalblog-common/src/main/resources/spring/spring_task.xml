@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/task
+	http://www.springframework.org/schema/task/spring-task-3.2.xsd
+	">
+
+	<description>Spring Tasks</description>
+	<!-- 
+	<bean id="taskTest" class="com.iyuego.tasks.TestTask" />
+
+	<bean id="taskCheckOrderTimeoutAndChangeStatus" class="com.iyuego.tasks.CheckOrderTimeoutAndChangeStatusTask" />
+	<bean id="taskUpdateGoodsSellOffTask" class="com.iyuego.tasks.UpdateGoodsSellOffTask" />
+
+	<bean id="checkShopClosedTask" class="com.iyuego.tasks.CheckShopClosedTask"></bean>
+	 -->
+	 <!-- 
+	<task:scheduled-tasks> -->
+		<!--这里表示的是从第30秒开始 ，每30秒执行一次
+		<task:scheduled ref="taskTest" method="printHello" cron="30/30 * * * * ?" /> -->
+
+		<!--从第30秒开始 ，每360秒执行一次
+		 <task:scheduled ref="taskCheckOrderTimeoutAndChangeStatus" method="checkOrderTimeoutAndChangeStatus" cron="30/360 * * * * ?" /> 
+		-->
+		<!-- 每天0点0分30秒定时修改预售商品到时下架 
+		<task:scheduled ref="taskUpdateGoodsSellOffTask" method="updateGoodsSellOff" cron="30 0 0 * * ?" />  -->
+		
+		<!-- 每天0时10分定时修改店铺的封闭状态 
+		<task:scheduled ref="checkShopClosedTask" method="doCheckShopClosed" cron="0 10 0 * * ?"/>-->
+	<!-- 
+	</task:scheduled-tasks> -->
+	
+
+</beans>

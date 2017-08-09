@@ -1,0 +1,272 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.IBloglivenessDao">
+<!-- 新增的方法写在这里 -->
+
+
+<!-- 保存非空列,返回受影响的行数 -->
+	<insert id="saveSelective" useGeneratedKeys="true" keyProperty="Vo.id">
+		Insert Into blogliveness 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="Vo.receiveGoods != null">ReceiveGoods,</if>
+            <if test="Vo.receiveComments != null">ReceiveComments,</if>
+            <if test="Vo.receiveClickRate != null">ReceiveClickRate,</if>
+            <if test="Vo.receiveBads != null">ReceiveBads,</if>
+            <if test="Vo.timeQuantum != null">TimeQuantum,</if>
+            <if test="Vo.blogId != null">BlogId,</if>
+           
+		</trim>
+		<trim prefix="Values (" suffix=")" suffixOverrides=",">
+            <if test="Vo.receiveGoods != null">#{Vo.receiveGoods},</if>
+            <if test="Vo.receiveComments != null">#{Vo.receiveComments},</if>
+            <if test="Vo.receiveClickRate != null">#{Vo.receiveClickRate},</if>
+            <if test="Vo.receiveBads != null">#{Vo.receiveBads},</if>
+            <if test="Vo.timeQuantum != null">#{Vo.timeQuantum},</if>
+            <if test="Vo.blogId != null">#{Vo.blogId},</if>
+            
+		</trim>
+	</insert>
+    
+    <!-- 根据主键删除-->
+	<delete id="delete">
+		Delete From blogliveness
+		Where id = #{id}
+	</delete>
+    
+    <!-- 删除所有记录,返回受影响的行数 -->
+	<delete id="deleteAll">
+		Delete From blogliveness
+	</delete>
+    
+    <!-- 更新非空列,返回受影响的行数 -->
+	<update id="updateSelective">
+		Update blogliveness
+		<trim prefix="Set" suffixOverrides=",">
+            <if test="Vo.receiveGoods != null">ReceiveGoods = #{Vo.receiveGoods},</if>
+            <if test="Vo.receiveComments != null">ReceiveComments = #{Vo.receiveComments},</if>
+            <if test="Vo.receiveClickRate != null">ReceiveClickRate = #{Vo.receiveClickRate},</if>
+            <if test="Vo.receiveBads != null">ReceiveBads = #{Vo.receiveBads},</if>
+            <if test="Vo.timeQuantum != null">TimeQuantum = #{Vo.timeQuantum},</if>
+            <if test="Vo.blogId != null">BlogId = #{Vo.blogId},</if>
+		</trim>
+		Where blogliveness.id = #{Vo.id}
+	</update>
+    
+    <resultMap type="BloglivenessVo" id="RM_Default">
+        <id column="Blogliveness_id" property="id"/>
+        <result column="Blogliveness_receiveGoods" property="receiveGoods"/>
+        <result column="Blogliveness_receiveComments" property="receiveComments"/>
+        <result column="Blogliveness_receiveClickRate" property="receiveClickRate"/>
+        <result column="Blogliveness_receiveBads" property="receiveBads"/>
+        <result column="Blogliveness_timeQuantum" property="timeQuantum"/>
+        <result column="Blogliveness_blogId" property="blogId"/>
+	</resultMap>
+    
+     <!-- ResultMap -->
+	<resultMap type="BloglivenessVo" id="RM_getVo_Auto">
+		<discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,通过'__chooseRM'控制返回的列 -->
+	<select id="getVo_Auto" resultMap="RM_getVo_Auto">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogliveness	As	blogliveness
+		Where
+		blogliveness.id = #{id}
+	</select>
+    
+    <!-- 传入id,判断是否存在该记录 -->
+	<select id="isExist_Auto" resultType="boolean">
+		Select Count(id) > 0
+		From	blogliveness	As	blogliveness
+		Where
+		blogliveness.id = #{id}
+	</select>
+    
+    <!-- 查询记录数量 -->
+	<select id="queryCount_Auto" resultType="Long">
+		Select Count(blogliveness.id)
+		From	blogliveness	As	blogliveness
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+	</select>
+    
+    <resultMap type="BloglivenessVo" id="RM_queryVos_Auto">
+        <discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 查询记录集合,通过'__chooseRM'控制返回的列 -->
+	<select id="queryVos_Auto" resultMap="RM_queryVos_Auto">
+		Select
+		<include refid="Sql_SelectColumns"/>
+		#{BloglivenessSearch.chooseRM} As _chooseRM
+		From	blogliveness	As	blogliveness
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+		<include refid="Sql_Order"/>
+		Limit #{BloglivenessSearch.offset},#{BloglivenessSearch.limit}
+	</select>
+    
+
+    <resultMap type="BloglivenessVo" id="RM_getVo_AdminView">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogliveness_id" property="id"/>
+        <result column="Blogliveness_receiveGoods" property="receiveGoods"/>
+        <result column="Blogliveness_receiveComments" property="receiveComments"/>
+        <result column="Blogliveness_receiveClickRate" property="receiveClickRate"/>
+        <result column="Blogliveness_receiveBads" property="receiveBads"/>
+        <result column="Blogliveness_timeQuantum" property="timeQuantum"/>
+        <result column="Blogliveness_blogId" property="blogId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminView调用 -->
+	<select id="getVo_AdminView" resultMap="RM_getVo_AdminView">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogliveness	As	blogliveness
+		Where
+		blogliveness.id = #{id}
+	</select>
+    
+    <resultMap type="BloglivenessVo" id="RM_getVo_preAdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogliveness_id" property="id"/>
+        <result column="Blogliveness_receiveGoods" property="receiveGoods"/>
+        <result column="Blogliveness_receiveComments" property="receiveComments"/>
+        <result column="Blogliveness_receiveClickRate" property="receiveClickRate"/>
+        <result column="Blogliveness_receiveBads" property="receiveBads"/>
+        <result column="Blogliveness_timeQuantum" property="timeQuantum"/>
+        <result column="Blogliveness_blogId" property="blogId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供preAdminEdit调用 -->
+	<select id="getVo_preAdminEdit" resultMap="RM_getVo_preAdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogliveness	As	blogliveness
+		Where
+		blogliveness.id = #{id}
+	</select>
+    
+    <resultMap type="BloglivenessVo" id="RM_getVo_AdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogliveness_id" property="id"/>
+        <result column="Blogliveness_receiveGoods" property="receiveGoods"/>
+        <result column="Blogliveness_receiveComments" property="receiveComments"/>
+        <result column="Blogliveness_receiveClickRate" property="receiveClickRate"/>
+        <result column="Blogliveness_receiveBads" property="receiveBads"/>
+        <result column="Blogliveness_timeQuantum" property="timeQuantum"/>
+        <result column="Blogliveness_blogId" property="blogId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminEdit调用 -->
+	<select id="getVo_AdminEdit" resultMap="RM_getVo_AdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogliveness	As	blogliveness
+		Where
+		blogliveness.id = #{id}
+	</select>
+    
+    <resultMap type="BloglivenessVo" id="RM_queryVos_AdminList">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogliveness_id" property="id"/>
+        <result column="Blogliveness_receiveGoods" property="receiveGoods"/>
+        <result column="Blogliveness_receiveComments" property="receiveComments"/>
+        <result column="Blogliveness_receiveClickRate" property="receiveClickRate"/>
+        <result column="Blogliveness_receiveBads" property="receiveBads"/>
+        <result column="Blogliveness_timeQuantum" property="timeQuantum"/>
+        <result column="Blogliveness_blogId" property="blogId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <sql id="Sql_SelectColumns">
+        blogliveness.BlogLivenessId As Blogliveness_blogLivenessId,
+        blogliveness.ReceiveGoods As Blogliveness_receiveGoods,
+        blogliveness.ReceiveComments As Blogliveness_receiveComments,
+        blogliveness.ReceiveClickRate As Blogliveness_receiveClickRate,
+        blogliveness.ReceiveBads As Blogliveness_receiveBads,
+        blogliveness.TimeQuantum As Blogliveness_timeQuantum,
+        blogliveness.BlogId As Blogliveness_blogId,
+	</sql>
+    
+    <sql id="Sql_Order">
+		<trim prefix="Order By ">
+    		<choose>
+                <when test="BloglivenessSearch.sort != null">
+                    Blogliveness_${BloglivenessSearch.sort} 
+                    <if test="BloglivenessSearch.order != null">
+                        ${BloglivenessSearch.order}
+                    </if>
+                </when>
+                <otherwise>
+                    Blogliveness_id Desc
+                </otherwise>
+            </choose>
+		</trim>
+	</sql>
+    
+    <sql id="Sql_Where">
+        <if test="BloglivenessSearch.eqBlogLivenessId != null">
+			<![CDATA[ And blogliveness.BlogLivenessId = #{BloglivenessSearch.eqBlogLivenessId} ]]>
+		</if>
+		<if test="BloglivenessSearch.neBlogLivenessId != null">
+			<![CDATA[ And blogliveness.BlogLivenessId != #{BloglivenessSearch.neBlogLivenessId} ]]>
+		</if>
+        <if test="BloglivenessSearch.eqReceiveGoods != null">
+			<![CDATA[ And blogliveness.ReceiveGoods = #{BloglivenessSearch.eqReceiveGoods} ]]>
+		</if>
+		<if test="BloglivenessSearch.neReceiveGoods != null">
+			<![CDATA[ And blogliveness.ReceiveGoods != #{BloglivenessSearch.neReceiveGoods} ]]>
+		</if>
+        <if test="BloglivenessSearch.eqReceiveComments != null">
+			<![CDATA[ And blogliveness.ReceiveComments = #{BloglivenessSearch.eqReceiveComments} ]]>
+		</if>
+		<if test="BloglivenessSearch.neReceiveComments != null">
+			<![CDATA[ And blogliveness.ReceiveComments != #{BloglivenessSearch.neReceiveComments} ]]>
+		</if>
+        <if test="BloglivenessSearch.eqReceiveClickRate != null">
+			<![CDATA[ And blogliveness.ReceiveClickRate = #{BloglivenessSearch.eqReceiveClickRate} ]]>
+		</if>
+		<if test="BloglivenessSearch.neReceiveClickRate != null">
+			<![CDATA[ And blogliveness.ReceiveClickRate != #{BloglivenessSearch.neReceiveClickRate} ]]>
+		</if>
+        <if test="BloglivenessSearch.eqReceiveBads != null">
+			<![CDATA[ And blogliveness.ReceiveBads = #{BloglivenessSearch.eqReceiveBads} ]]>
+		</if>
+		<if test="BloglivenessSearch.neReceiveBads != null">
+			<![CDATA[ And blogliveness.ReceiveBads != #{BloglivenessSearch.neReceiveBads} ]]>
+		</if>
+        <if test="BloglivenessSearch.eqTimeQuantum != null">
+			<![CDATA[ And date_format(blogliveness.TimeQuantum,'%Y-%m-%d') = date_format(#{BloglivenessSearch.eqTimeQuantum},'%Y-%m-%d') ]]>
+		</if>
+		<if test="BloglivenessSearch.geTimeQuantum != null">
+			<![CDATA[ And blogliveness.TimeQuantum >= #{BloglivenessSearch.geTimeQuantum} ]]>
+		</if>
+		<if test="BloglivenessSearch.ltTimeQuantum != null">
+			<![CDATA[ And blogliveness.TimeQuantum < #{BloglivenessSearch.ltTimeQuantum} ]]>
+		</if>
+        
+        <if test="BloglivenessSearch.eqBlogId != null">
+			<![CDATA[ And blogliveness.BlogId = #{BloglivenessSearch.eqBlogId} ]]>
+		</if>
+		<if test="BloglivenessSearch.neBlogId != null">
+			<![CDATA[ And blogliveness.BlogId != #{BloglivenessSearch.neBlogId} ]]>
+		</if>
+    </sql>
+</mapper>
+
+

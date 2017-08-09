@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util-3.2.xsd
+	">
+
+	<description>Spring Configs</description>
+	
+	<util:properties id="upload_pros">
+		<prop key="upload_root_dir">${pro.upload_root_dir}</prop>
+	</util:properties>
+
+	<!-- <context:property-placeholder location="classpath:/configs/database/database.properties" 
+		/> -->
+
+	<!-- <bean class="org.jasypt.spring31.properties.EncryptablePreferencesPlaceholderConfigurer"> 
+		<constructor-arg ref="stringEncryptor" /> <property name="locations"> <list> 
+		<value>classpath:/config/database/database.properties</value> </list> </property> 
+		</bean> <bean id="stringEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor"> 
+		<property name="config" ref="environmentConfig" /> </bean> <bean id="environmentConfig" 
+		class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig"> <property 
+		name="algorithm" value="PBEWithMD5AndDES" /> <property name="password" value="wkshuai" 
+		/> </bean> -->
+
+	<!-- <context:property-placeholder location="classpath:config/database/database.properties" 
+		ignore-resource-not-found="true" ignore-unresolvable="true" system-properties-mode="NEVER" 
+		properties-ref="default_properties" /> <util:properties id="default_properties"> 
+		<beans:prop key="db.url">jdbc:mysql://localhost:3306/falsework_db?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull 
+		</beans:prop> <beans:prop key="db.username">root</beans:prop> <beans:prop 
+		key="db.password">wkshuai</beans:prop> <beans:prop key="db.validationQuery">SELECT 
+		1</beans:prop> </util:properties> -->
+
+</beans> 

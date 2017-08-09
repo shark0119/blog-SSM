@@ -1,0 +1,373 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.IBlogcommentDao">
+<!-- 新增的方法写在这里 -->
+
+
+<!-- 保存非空列,返回受影响的行数 -->
+	<insert id="saveSelective" useGeneratedKeys="true" keyProperty="Vo.id">
+		Insert Into blogcomment 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="Vo.blogId != null">BlogId,</if>
+            <if test="Vo.refCommentId != null">RefCommentId,</if>
+            <if test="Vo.creatorId != null">CreatorId,</if>
+            <if test="Vo.createDate != null">CreateDate,</if>
+            <if test="Vo.commentContent != null">CommentContent,</if>
+            <if test="Vo.dynamicNotice != null">DynamicNotice,</if>
+            <if test="Vo.state != null">state,</if>
+           
+		</trim>
+		<trim prefix="Values (" suffix=")" suffixOverrides=",">
+            <if test="Vo.blogId != null">#{Vo.blogId},</if>
+            <if test="Vo.refCommentId != null">#{Vo.refCommentId},</if>
+            <if test="Vo.creatorId != null">#{Vo.creatorId},</if>
+            <if test="Vo.createDate != null">#{Vo.createDate},</if>
+            <if test="Vo.commentContent != null">#{Vo.commentContent},</if>
+            <if test="Vo.dynamicNotice != null">#{Vo.dynamicNotice},</if>
+            <if test="Vo.state != null">#{Vo.state},</if>
+            
+		</trim>
+	</insert>
+    
+    <!-- 根据主键删除-->
+	<delete id="delete">
+		Delete From blogcomment
+		Where id = #{id}
+	</delete>
+    
+    <!-- 删除所有记录,返回受影响的行数 -->
+	<delete id="deleteAll">
+		Delete From blogcomment
+	</delete>
+    
+    <!-- 更新非空列,返回受影响的行数 -->
+	<update id="updateSelective">
+		Update blogcomment
+		<trim prefix="Set" suffixOverrides=",">
+            <if test="Vo.blogId != null">BlogId = #{Vo.blogId},</if>
+            <if test="Vo.refCommentId != null">RefCommentId = #{Vo.refCommentId},</if>
+            <if test="Vo.creatorId != null">CreatorId = #{Vo.creatorId},</if>
+            <if test="Vo.createDate != null">CreateDate = #{Vo.createDate},</if>
+            <if test="Vo.commentContent != null">CommentContent = #{Vo.commentContent},</if>
+            <if test="Vo.dynamicNotice != null">DynamicNotice = #{Vo.dynamicNotice},</if>
+            <if test="Vo.state != null">state = #{Vo.state},</if>
+		</trim>
+		Where blogcomment.id = #{Vo.id}
+	</update>
+    
+    <resultMap type="BlogcommentVo" id="RM_Default">
+        <id column="Blogcomment_id" property="id"/>
+        <result column="Blogcomment_blogId" property="blogId"/>
+        <result column="Blogcomment_refCommentId" property="refCommentId"/>
+        <result column="Blogcomment_creatorId" property="creatorId"/>
+        <result column="Blogcomment_createDate" property="createDate"/>
+        <result column="Blogcomment_commentContent" property="commentContent"/>
+        <result column="Blogcomment_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blogcomment_state" property="state"/>
+	</resultMap>
+    
+     <!-- ResultMap -->
+	<resultMap type="BlogcommentVo" id="RM_getVo_Auto">
+		<discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,通过'__chooseRM'控制返回的列 -->
+	<select id="getVo_Auto" resultMap="RM_getVo_Auto">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogcomment	As	blogcomment
+		Where
+		blogcomment.id = #{id}
+	</select>
+    
+    <!-- 传入id,判断是否存在该记录 -->
+	<select id="isExist_Auto" resultType="boolean">
+		Select Count(id) > 0
+		From	blogcomment	As	blogcomment
+		Where
+		blogcomment.id = #{id}
+	</select>
+    
+    <!-- 查询记录数量 -->
+	<select id="queryCount_Auto" resultType="Long">
+		Select Count(blogcomment.id)
+		From	blogcomment	As	blogcomment
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+	</select>
+    
+    <resultMap type="BlogcommentVo" id="RM_queryVos_Auto">
+        <discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 查询记录集合,通过'__chooseRM'控制返回的列 -->
+	<select id="queryVos_Auto" resultMap="RM_queryVos_Auto">
+		Select
+		<include refid="Sql_SelectColumns"/>
+		#{BlogcommentSearch.chooseRM} As _chooseRM
+		From	blogcomment	As	blogcomment
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+		<include refid="Sql_Order"/>
+		Limit #{BlogcommentSearch.offset},#{BlogcommentSearch.limit}
+	</select>
+    
+
+    <resultMap type="BlogcommentVo" id="RM_getVo_AdminView">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogcomment_id" property="id"/>
+        <result column="Blogcomment_blogId" property="blogId"/>
+        <result column="Blogcomment_refCommentId" property="refCommentId"/>
+        <result column="Blogcomment_creatorId" property="creatorId"/>
+        <result column="Blogcomment_createDate" property="createDate"/>
+        <result column="Blogcomment_commentContent" property="commentContent"/>
+        <result column="Blogcomment_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blogcomment_state" property="state"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminView调用 -->
+	<select id="getVo_AdminView" resultMap="RM_getVo_AdminView">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogcomment	As	blogcomment
+		Where
+		blogcomment.id = #{id}
+	</select>
+    
+    <resultMap type="BlogcommentVo" id="RM_getVo_preAdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogcomment_id" property="id"/>
+        <result column="Blogcomment_blogId" property="blogId"/>
+        <result column="Blogcomment_refCommentId" property="refCommentId"/>
+        <result column="Blogcomment_creatorId" property="creatorId"/>
+        <result column="Blogcomment_createDate" property="createDate"/>
+        <result column="Blogcomment_commentContent" property="commentContent"/>
+        <result column="Blogcomment_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blogcomment_state" property="state"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供preAdminEdit调用 -->
+	<select id="getVo_preAdminEdit" resultMap="RM_getVo_preAdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogcomment	As	blogcomment
+		Where
+		blogcomment.id = #{id}
+	</select>
+    
+    <resultMap type="BlogcommentVo" id="RM_getVo_AdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogcomment_id" property="id"/>
+        <result column="Blogcomment_blogId" property="blogId"/>
+        <result column="Blogcomment_refCommentId" property="refCommentId"/>
+        <result column="Blogcomment_creatorId" property="creatorId"/>
+        <result column="Blogcomment_createDate" property="createDate"/>
+        <result column="Blogcomment_commentContent" property="commentContent"/>
+        <result column="Blogcomment_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blogcomment_state" property="state"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminEdit调用 -->
+	<select id="getVo_AdminEdit" resultMap="RM_getVo_AdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blogcomment	As	blogcomment
+		Where
+		blogcomment.id = #{id}
+	</select>
+    
+    <resultMap type="BlogcommentVo" id="RM_queryVos_AdminList">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blogcomment_id" property="id"/>
+        <result column="Blogcomment_blogId" property="blogId"/>
+        <result column="Blogcomment_refCommentId" property="refCommentId"/>
+        <result column="Blogcomment_creatorId" property="creatorId"/>
+        <result column="Blogcomment_createDate" property="createDate"/>
+        <result column="Blogcomment_commentContent" property="commentContent"/>
+        <result column="Blogcomment_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blogcomment_state" property="state"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <sql id="Sql_SelectColumns">
+        blogcomment.CommentId As Blogcomment_commentId,
+        blogcomment.BlogId As Blogcomment_blogId,
+        blogcomment.RefCommentId As Blogcomment_refCommentId,
+        blogcomment.CreatorId As Blogcomment_creatorId,
+        blogcomment.CreateDate As Blogcomment_createDate,
+        blogcomment.CommentContent As Blogcomment_commentContent,
+        blogcomment.DynamicNotice As Blogcomment_dynamicNotice,
+        blogcomment.state As Blogcomment_state,
+	</sql>
+    
+    <sql id="Sql_Order">
+		<trim prefix="Order By ">
+    		<choose>
+                <when test="BlogcommentSearch.sort != null">
+                    Blogcomment_${BlogcommentSearch.sort} 
+                    <if test="BlogcommentSearch.order != null">
+                        ${BlogcommentSearch.order}
+                    </if>
+                </when>
+                <otherwise>
+                    Blogcomment_id Desc
+                </otherwise>
+            </choose>
+		</trim>
+	</sql>
+    
+    <sql id="Sql_Where">
+        <if test="BlogcommentSearch.eqCommentId != null">
+			<![CDATA[ And blogcomment.CommentId = #{BlogcommentSearch.eqCommentId} ]]>
+		</if>
+		<if test="BlogcommentSearch.neCommentId != null">
+			<![CDATA[ And blogcomment.CommentId != #{BlogcommentSearch.neCommentId} ]]>
+		</if>
+        <if test="BlogcommentSearch.eqBlogId != null">
+			<![CDATA[ And blogcomment.BlogId = #{BlogcommentSearch.eqBlogId} ]]>
+		</if>
+		<if test="BlogcommentSearch.neBlogId != null">
+			<![CDATA[ And blogcomment.BlogId != #{BlogcommentSearch.neBlogId} ]]>
+		</if>
+        <if test="BlogcommentSearch.eqRefCommentId != null">
+			<![CDATA[ And blogcomment.RefCommentId = #{BlogcommentSearch.eqRefCommentId} ]]>
+		</if>
+		<if test="BlogcommentSearch.neRefCommentId != null">
+			<![CDATA[ And blogcomment.RefCommentId != #{BlogcommentSearch.neRefCommentId} ]]>
+		</if>
+        <if test="BlogcommentSearch.eqCreatorId != null">
+			<![CDATA[ And blogcomment.CreatorId = #{BlogcommentSearch.eqCreatorId} ]]>
+		</if>
+		<if test="BlogcommentSearch.neCreatorId != null">
+			<![CDATA[ And blogcomment.CreatorId != #{BlogcommentSearch.neCreatorId} ]]>
+		</if>
+        <if test="BlogcommentSearch.eqCreateDate != null">
+			<![CDATA[ And date_format(blogcomment.CreateDate,'%Y-%m-%d') = date_format(#{BlogcommentSearch.eqCreateDate},'%Y-%m-%d') ]]>
+		</if>
+		<if test="BlogcommentSearch.geCreateDate != null">
+			<![CDATA[ And blogcomment.CreateDate >= #{BlogcommentSearch.geCreateDate} ]]>
+		</if>
+		<if test="BlogcommentSearch.ltCreateDate != null">
+			<![CDATA[ And blogcomment.CreateDate < #{BlogcommentSearch.ltCreateDate} ]]>
+		</if>
+        
+        <if test="BlogcommentSearch.eqCommentContent != null">
+			<![CDATA[ And blogcomment.CommentContent = #{BlogcommentSearch.eqCommentContent} ]]>
+		</if>
+		<if test="BlogcommentSearch.lkCommentContent != null">
+			<![CDATA[ And blogcomment.CommentContent Like '%${BlogcommentSearch.lkCommentContent}%' ]]>
+		</if>
+        <if test="BlogcommentSearch.eqDynamicNotice != null">
+			<![CDATA[ And blogcomment.DynamicNotice = #{BlogcommentSearch.eqDynamicNotice} ]]>
+		</if>
+		<if test="BlogcommentSearch.neDynamicNotice != null">
+			<![CDATA[ And blogcomment.DynamicNotice != #{BlogcommentSearch.neDynamicNotice} ]]>
+		</if>
+        <if test="BlogcommentSearch.eqState != null">
+			<![CDATA[ And blogcomment.state = #{BlogcommentSearch.eqState} ]]>
+		</if>
+		<if test="BlogcommentSearch.neState != null">
+			<![CDATA[ And blogcomment.state != #{BlogcommentSearch.neState} ]]>
+		</if>
+    </sql>
+    <!--自己的方法开始  -->
+    <resultMap type="BlogcommentVo" id="PComment">
+		<result property="commentId" column="commentId"/>
+		<!-- <result property="refCommentId" column="refCommentId"/> -->
+		<result property="createDate" column="createDate"/>
+		<result property="commentContent" column="commentContent"/>
+		<result property="addressorName" column="addressorName"/>
+		<result property="needreplyName" column="needreplyName"/>
+	</resultMap> 
+	<!-- 查找某个博客下面所有的主评论-->
+	<select id="getCommentsByBlogId" parameterType="Integer" resultMap="PComment">
+		select u1.nickName as needreplyName,u.nickName as addressorName,c.* from blogcomment c 
+			inner join blog b on c.blogid=b.blogid 
+			inner join user u on u.userid=c.CreatorId
+			inner join user u1 on u1.userid=b.creatorid
+		 where b.blogid=#{id} order by c.createdate desc
+	</select>
+	<!--回复人的姓名统计-->
+	<resultMap type="BlogcommentVo" id="replyComment">
+		<result property="commentId" column="commentId"/>
+		<result property="refCommentId" column="refCommentId"/>
+		<result property="createDate" column="createDate"/>
+		<result property="commentContent" column="commentContent"/>
+		<result property="addressorName" column="addressorName"/>
+		<result property="needreplyName" column="needreplyName"/>
+	</resultMap>
+		
+	<!--查询某个评论的所有的回复  -->
+	<select id="getReplyCommentByCommentId" parameterType="Integer" resultMap="replyComment">
+		select  co.*,u1.nickName addressorName,u.nickName needreplyName from blogcomment c 
+		inner join blogcomment co on co.refcommentid=c.commentid
+		inner join user u on u.userid=c.CreatorId
+		inner join user u1 on u1.userid=co.CreatorId
+		where co.refcommentid=#{commentid} order by co.createdate asc
+	</select>
+	<!--增加一条评论 -->
+	<insert id="addComment" parameterType="BlogcommentVo">
+		insert into Blogcomment(commentid,blogid,creatorid,createdate,commentContent,dynamicNotice)
+		values(#{commentId},#{blogId},#{creatorId},now(),#{commentContent},#{dynamicNotice})
+	</insert>
+	<!--回复一条评论  -->
+	<insert id="addReplyComment" parameterType="BlogcommentVo">
+		insert into Blogcomment(commentid,refCommentid,creatorid,createdate,commentContent,dynamicNotice)
+		values(#{commentId},#{refCommentId},#{creatorId},now(),#{commentContent},#{dynamicNotice})
+	</insert>
+	<!--根据Id删除一个评论  -->
+	<delete id="deleteBlogComment" parameterType="Integer">
+	  delete from Blogcomment 
+	  	where commentid=#{commentId}
+	</delete>
+	<!--查询当前博文下主评论的个数  -->
+	<select id="getAllCountByBlogId" parameterType="Integer" resultType="Integer">
+		select count(1) from Blogcomment bm 
+		inner join Blog b on b.blogid=bm.blogid
+		where b.blogid=#{blogId} 
+	</select>
+	<!--找到需要回复的人的地址  -->
+	<select id="getUserByrelCommentId" resultType="UserVo" parameterType="Integer">
+		SELECT u.*
+		FROM USER u
+		WHERE u.UserId=(
+		SELECT b.CreatorId FROM blogcomment b 
+		INNER JOIN blogcomment bl ON b.CommentId=bl.RefCommentId
+		WHERE bl.RefCommentId=#{refCommentId})
+	</select>
+	<!--根据ID找到该评论  -->
+	<select id="getCommentById" resultType="BlogcommentVo" parameterType="Integer">
+		select * from blogcomment where commentid=#{commentId}
+	</select>
+	
+	<!--根据博客Id分页显示主评论  -->
+	<select id="getBlogCommentByPage" parameterType="Integer" resultMap="PComment">
+		select u1.nickName as needreplyName,u.nickName as addressorName,c.* from blogcomment c 
+			inner join blog b on c.blogid=b.blogid 
+			inner join user u on u.userid=c.CreatorId
+			inner join user u1 on u1.userid=b.creatorid
+		 where b.blogid=#{2}
+		 
+		 order by c.createdate desc
+		 
+		 limit #{0},#{1} 
+	</select>
+	<!--查找当前最大的id-->
+	<select id="getCommentMaxId" resultType="Integer">
+		select max(commentId) from blogcomment
+	</select>
+</mapper>
+
+

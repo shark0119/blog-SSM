@@ -1,0 +1,208 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.IBloglabelDao">
+<!-- 新增的方法写在这里 -->
+
+
+<!-- 保存非空列,返回受影响的行数 -->
+	<insert id="saveSelective" useGeneratedKeys="true" keyProperty="Vo.id">
+		Insert Into bloglabel 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="Vo.blogId != null">BlogId,</if>
+            <if test="Vo.labelId != null">LabelId,</if>
+           
+		</trim>
+		<trim prefix="Values (" suffix=")" suffixOverrides=",">
+            <if test="Vo.blogId != null">#{Vo.blogId},</if>
+            <if test="Vo.labelId != null">#{Vo.labelId},</if>
+            
+		</trim>
+	</insert>
+    
+    <!-- 根据主键删除-->
+	<delete id="delete">
+		Delete From bloglabel
+		Where id = #{id}
+	</delete>
+    
+    <!-- 删除所有记录,返回受影响的行数 -->
+	<delete id="deleteAll">
+		Delete From bloglabel
+	</delete>
+    
+    <!-- 更新非空列,返回受影响的行数 -->
+	<update id="updateSelective">
+		Update bloglabel
+		<trim prefix="Set" suffixOverrides=",">
+            <if test="Vo.blogId != null">BlogId = #{Vo.blogId},</if>
+            <if test="Vo.labelId != null">LabelId = #{Vo.labelId},</if>
+		</trim>
+		Where bloglabel.id = #{Vo.id}
+	</update>
+    
+    <resultMap type="BloglabelVo" id="RM_Default">
+        <id column="Bloglabel_id" property="id"/>
+        <result column="Bloglabel_blogId" property="blogId"/>
+        <result column="Bloglabel_labelId" property="labelId"/>
+	</resultMap>
+    
+     <!-- ResultMap -->
+	<resultMap type="BloglabelVo" id="RM_getVo_Auto">
+		<discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,通过'__chooseRM'控制返回的列 -->
+	<select id="getVo_Auto" resultMap="RM_getVo_Auto">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	bloglabel	As	bloglabel
+		Where
+		bloglabel.id = #{id}
+	</select>
+    
+    <!-- 传入id,判断是否存在该记录 -->
+	<select id="isExist_Auto" resultType="boolean">
+		Select Count(id) > 0
+		From	bloglabel	As	bloglabel
+		Where
+		bloglabel.id = #{id}
+	</select>
+    
+    <!-- 查询记录数量 -->
+	<select id="queryCount_Auto" resultType="Long">
+		Select Count(bloglabel.id)
+		From	bloglabel	As	bloglabel
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+	</select>
+    
+    <resultMap type="BloglabelVo" id="RM_queryVos_Auto">
+        <discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 查询记录集合,通过'__chooseRM'控制返回的列 -->
+	<select id="queryVos_Auto" resultMap="RM_queryVos_Auto">
+		Select
+		<include refid="Sql_SelectColumns"/>
+		#{BloglabelSearch.chooseRM} As _chooseRM
+		From	bloglabel	As	bloglabel
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+		<include refid="Sql_Order"/>
+		Limit #{BloglabelSearch.offset},#{BloglabelSearch.limit}
+	</select>
+    
+
+    <resultMap type="BloglabelVo" id="RM_getVo_AdminView">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Bloglabel_id" property="id"/>
+        <result column="Bloglabel_blogId" property="blogId"/>
+        <result column="Bloglabel_labelId" property="labelId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminView调用 -->
+	<select id="getVo_AdminView" resultMap="RM_getVo_AdminView">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	bloglabel	As	bloglabel
+		Where
+		bloglabel.id = #{id}
+	</select>
+    
+    <resultMap type="BloglabelVo" id="RM_getVo_preAdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Bloglabel_id" property="id"/>
+        <result column="Bloglabel_blogId" property="blogId"/>
+        <result column="Bloglabel_labelId" property="labelId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供preAdminEdit调用 -->
+	<select id="getVo_preAdminEdit" resultMap="RM_getVo_preAdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	bloglabel	As	bloglabel
+		Where
+		bloglabel.id = #{id}
+	</select>
+    
+    <resultMap type="BloglabelVo" id="RM_getVo_AdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Bloglabel_id" property="id"/>
+        <result column="Bloglabel_blogId" property="blogId"/>
+        <result column="Bloglabel_labelId" property="labelId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminEdit调用 -->
+	<select id="getVo_AdminEdit" resultMap="RM_getVo_AdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	bloglabel	As	bloglabel
+		Where
+		bloglabel.id = #{id}
+	</select>
+    
+    <resultMap type="BloglabelVo" id="RM_queryVos_AdminList">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Bloglabel_id" property="id"/>
+        <result column="Bloglabel_blogId" property="blogId"/>
+        <result column="Bloglabel_labelId" property="labelId"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <sql id="Sql_SelectColumns">
+        bloglabel.BlogLabelId As Bloglabel_blogLabelId,
+        bloglabel.BlogId As Bloglabel_blogId,
+        bloglabel.LabelId As Bloglabel_labelId,
+	</sql>
+    
+    <sql id="Sql_Order">
+		<trim prefix="Order By ">
+    		<choose>
+                <when test="BloglabelSearch.sort != null">
+                    Bloglabel_${BloglabelSearch.sort} 
+                    <if test="BloglabelSearch.order != null">
+                        ${BloglabelSearch.order}
+                    </if>
+                </when>
+                <otherwise>
+                    Bloglabel_id Desc
+                </otherwise>
+            </choose>
+		</trim>
+	</sql>
+    
+    <sql id="Sql_Where">
+        <if test="BloglabelSearch.eqBlogLabelId != null">
+			<![CDATA[ And bloglabel.BlogLabelId = #{BloglabelSearch.eqBlogLabelId} ]]>
+		</if>
+		<if test="BloglabelSearch.neBlogLabelId != null">
+			<![CDATA[ And bloglabel.BlogLabelId != #{BloglabelSearch.neBlogLabelId} ]]>
+		</if>
+        <if test="BloglabelSearch.eqBlogId != null">
+			<![CDATA[ And bloglabel.BlogId = #{BloglabelSearch.eqBlogId} ]]>
+		</if>
+		<if test="BloglabelSearch.neBlogId != null">
+			<![CDATA[ And bloglabel.BlogId != #{BloglabelSearch.neBlogId} ]]>
+		</if>
+        <if test="BloglabelSearch.eqLabelId != null">
+			<![CDATA[ And bloglabel.LabelId = #{BloglabelSearch.eqLabelId} ]]>
+		</if>
+		<if test="BloglabelSearch.neLabelId != null">
+			<![CDATA[ And bloglabel.LabelId != #{BloglabelSearch.neLabelId} ]]>
+		</if>
+    </sql>
+</mapper>
+
+

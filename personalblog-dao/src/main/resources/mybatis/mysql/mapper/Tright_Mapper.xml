@@ -1,0 +1,223 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.ITrightDao">
+<!-- 新增的方法写在这里 -->
+
+
+<!-- 保存非空列,返回受影响的行数 -->
+	<insert id="saveSelective" useGeneratedKeys="true" keyProperty="Vo.id">
+		Insert Into tright 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="Vo.rightparentcode != null">rightparentcode,</if>
+            <if test="Vo.righttitle != null">righttitle,</if>
+            <if test="Vo.righturl != null">righturl,</if>
+           
+		</trim>
+		<trim prefix="Values (" suffix=")" suffixOverrides=",">
+            <if test="Vo.rightparentcode != null">#{Vo.rightparentcode},</if>
+            <if test="Vo.righttitle != null">#{Vo.righttitle},</if>
+            <if test="Vo.righturl != null">#{Vo.righturl},</if>
+            
+		</trim>
+	</insert>
+    
+    <!-- 根据主键删除-->
+	<delete id="delete">
+		Delete From tright
+		Where id = #{id}
+	</delete>
+    
+    <!-- 删除所有记录,返回受影响的行数 -->
+	<delete id="deleteAll">
+		Delete From tright
+	</delete>
+    
+    <!-- 更新非空列,返回受影响的行数 -->
+	<update id="updateSelective">
+		Update tright
+		<trim prefix="Set" suffixOverrides=",">
+            <if test="Vo.rightparentcode != null">rightparentcode = #{Vo.rightparentcode},</if>
+            <if test="Vo.righttitle != null">righttitle = #{Vo.righttitle},</if>
+            <if test="Vo.righturl != null">righturl = #{Vo.righturl},</if>
+		</trim>
+		Where tright.id = #{Vo.id}
+	</update>
+    
+    <resultMap type="TrightVo" id="RM_Default">
+        <id column="Tright_id" property="id"/>
+        <result column="Tright_rightparentcode" property="rightparentcode"/>
+        <result column="Tright_righttitle" property="righttitle"/>
+        <result column="Tright_righturl" property="righturl"/>
+	</resultMap>
+    
+     <!-- ResultMap -->
+	<resultMap type="TrightVo" id="RM_getVo_Auto">
+		<discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,通过'__chooseRM'控制返回的列 -->
+	<select id="getVo_Auto" resultMap="RM_getVo_Auto">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	tright	As	tright
+		Where
+		tright.id = #{id}
+	</select>
+    
+    <!-- 传入id,判断是否存在该记录 -->
+	<select id="isExist_Auto" resultType="boolean">
+		Select Count(id) > 0
+		From	tright	As	tright
+		Where
+		tright.id = #{id}
+	</select>
+    
+    <!-- 查询记录数量 -->
+	<select id="queryCount_Auto" resultType="Long">
+		Select Count(tright.id)
+		From	tright	As	tright
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+	</select>
+    
+    <resultMap type="TrightVo" id="RM_queryVos_Auto">
+        <discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 查询记录集合,通过'__chooseRM'控制返回的列 -->
+	<select id="queryVos_Auto" resultMap="RM_queryVos_Auto">
+		Select
+		<include refid="Sql_SelectColumns"/>
+		#{TrightSearch.chooseRM} As _chooseRM
+		From	tright	As	tright
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+		<include refid="Sql_Order"/>
+		Limit #{TrightSearch.offset},#{TrightSearch.limit}
+	</select>
+    
+
+    <resultMap type="TrightVo" id="RM_getVo_AdminView">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Tright_id" property="id"/>
+        <result column="Tright_rightparentcode" property="rightparentcode"/>
+        <result column="Tright_righttitle" property="righttitle"/>
+        <result column="Tright_righturl" property="righturl"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminView调用 -->
+	<select id="getVo_AdminView" resultMap="RM_getVo_AdminView">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	tright	As	tright
+		Where
+		tright.id = #{id}
+	</select>
+    
+    <resultMap type="TrightVo" id="RM_getVo_preAdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Tright_id" property="id"/>
+        <result column="Tright_rightparentcode" property="rightparentcode"/>
+        <result column="Tright_righttitle" property="righttitle"/>
+        <result column="Tright_righturl" property="righturl"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供preAdminEdit调用 -->
+	<select id="getVo_preAdminEdit" resultMap="RM_getVo_preAdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	tright	As	tright
+		Where
+		tright.id = #{id}
+	</select>
+    
+    <resultMap type="TrightVo" id="RM_getVo_AdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Tright_id" property="id"/>
+        <result column="Tright_rightparentcode" property="rightparentcode"/>
+        <result column="Tright_righttitle" property="righttitle"/>
+        <result column="Tright_righturl" property="righturl"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminEdit调用 -->
+	<select id="getVo_AdminEdit" resultMap="RM_getVo_AdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	tright	As	tright
+		Where
+		tright.id = #{id}
+	</select>
+    
+    <resultMap type="TrightVo" id="RM_queryVos_AdminList">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Tright_id" property="id"/>
+        <result column="Tright_rightparentcode" property="rightparentcode"/>
+        <result column="Tright_righttitle" property="righttitle"/>
+        <result column="Tright_righturl" property="righturl"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <sql id="Sql_SelectColumns">
+        tright.tightid As Tright_tightid,
+        tright.rightparentcode As Tright_rightparentcode,
+        tright.righttitle As Tright_righttitle,
+        tright.righturl As Tright_righturl,
+	</sql>
+    
+    <sql id="Sql_Order">
+		<trim prefix="Order By ">
+    		<choose>
+                <when test="TrightSearch.sort != null">
+                    Tright_${TrightSearch.sort} 
+                    <if test="TrightSearch.order != null">
+                        ${TrightSearch.order}
+                    </if>
+                </when>
+                <otherwise>
+                    Tright_id Desc
+                </otherwise>
+            </choose>
+		</trim>
+	</sql>
+    
+    <sql id="Sql_Where">
+        <if test="TrightSearch.eqTightid != null">
+			<![CDATA[ And tright.tightid = #{TrightSearch.eqTightid} ]]>
+		</if>
+		<if test="TrightSearch.lkTightid != null">
+			<![CDATA[ And tright.tightid Like '%${TrightSearch.lkTightid}%' ]]>
+		</if>
+        <if test="TrightSearch.eqRightparentcode != null">
+			<![CDATA[ And tright.rightparentcode = #{TrightSearch.eqRightparentcode} ]]>
+		</if>
+		<if test="TrightSearch.lkRightparentcode != null">
+			<![CDATA[ And tright.rightparentcode Like '%${TrightSearch.lkRightparentcode}%' ]]>
+		</if>
+        <if test="TrightSearch.eqRighttitle != null">
+			<![CDATA[ And tright.righttitle = #{TrightSearch.eqRighttitle} ]]>
+		</if>
+		<if test="TrightSearch.lkRighttitle != null">
+			<![CDATA[ And tright.righttitle Like '%${TrightSearch.lkRighttitle}%' ]]>
+		</if>
+        <if test="TrightSearch.eqRighturl != null">
+			<![CDATA[ And tright.righturl = #{TrightSearch.eqRighturl} ]]>
+		</if>
+		<if test="TrightSearch.lkRighturl != null">
+			<![CDATA[ And tright.righturl Like '%${TrightSearch.lkRighturl}%' ]]>
+		</if>
+    </sql>
+</mapper>
+
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+	
+	<import resource="spring_controllers.xml" />
+	<!-- <import resource="spring_interceptors.xml" /> -->
+	<import resource="spring_security.xml" />
+	<import resource="spring_upload.xml" />
+
+	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" conversion-service="conversionService"><!--  validator="validator" -->
+		<!-- register-defaults为true时,默认使用的converter,测试版本为3.2.4 super(new MediaType("text", "plain", defaultCharset), MediaType.ALL); org.springframework.http.converter.StringHttpMessageConverter super(new MediaType("application", 
+			"octet-stream"), MediaType.ALL); org.springframework.http.converter.ByteArrayHttpMessageConverter super(MediaType.ALL); org.springframework.http.converter.ResourceHttpMessageConverter org.springframework.http.converter.xml.SourceHttpMessageConverter 
+			this.supportedMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED); this.supportedMediaTypes.add(MediaType.MULTIPART_FORM_DATA); org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter 
+			super(MediaType.APPLICATION_XML, MediaType.TEXT_XML, new MediaType("application", "*+xml")); org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter super(new MediaType("application", 
+			"json", DEFAULT_CHARSET), new MediaType("application", "*+json", DEFAULT_CHARSET)); org.springframework.http.converter.json.MappingJackson2HttpMessageConverter 在这里,设为false,然后自己把默认的给加上一共七个,然后改变了其中两个属性 -->
+		<mvc:message-converters register-defaults="false">
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" />
+			</bean>
+			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.ResourceHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="objectMapper" ref="objectMapper" />
+				<!-- 为解决IE遇到JSON下载的问题,而解决 -->
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html;charset=utf-8</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+
+	<!-- HttpMessageConvert转换器,同上面mvc:message-converters中配置的一样,为以后给异常处理器使用的 <util:list id="messageConverters"> <bean class="org.springframework.http.converter.StringHttpMessageConverter"> <constructor-arg 
+		value="UTF-8" /> </bean> <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" /> <bean class="org.springframework.http.converter.ResourceHttpMessageConverter" /> <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter" 
+		/> <bean class="org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter" /> <bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter" /> <bean 
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"> <property name="objectMapper" ref="objectMapper" /> </bean> </util:list> -->
+
+	<!-- REST中根据URL后缀自动判定Content-Type及相应的View -->
+	<!-- 返回内容协商管理器 -->
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<!-- 启用参数支持,默认为true(url?format=json) -->
+		<property name="favorParameter" value="false" />
+		<!-- 启用扩展名支持,默认为true(用.json或.xml来控制返回) -->
+		<property name="favorPathExtension" value="true" />
+		<!-- 跳转Header里面的accept参数 -->
+		<property name="ignoreAcceptHeader" value="true" />
+		<!-- 如果所有的mediaType都没匹配上，就会使用defaultContentType -->
+		<property name="defaultContentType" value="text/html" />
+		<property name="mediaTypes">
+			<util:map>
+				<entry key="htm" value="text/html" />
+				<!-- 去掉json的解析,这时候使用.json走默认的text/html走?存疑.. -->
+				<entry key="json" value="text/html" />
+				<entry key="xml" value="application/xml" />
+				<!-- <entry key="atom" value="application/atom+xml" /> <entry key="pdf" value="application/pdf" /> <entry key="xsl" value="application/vnd.ms-excel" /> -->
+			</util:map>
+		</property>
+	</bean>
+
+	<!-- 转换服务层,在这里用于注册自定义的转换器 -->
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="common.converter.CustomDateConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 内容协商视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="contentNegotiationManager" ref="contentNegotiationManager" />
+		<property name="viewResolvers" ref="viewResolvers" />
+		<property name="defaultViews">
+			<list>
+				<bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+					<property name="extractValueFromSingleKeyModel" value="true" />
+					<property name="objectMapper" ref="objectMapper" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 内容解析器 -->
+	<util:list id="viewResolvers">
+		<!-- JSP的视图配置,没有找到对应的JSP页面的话,会下去再找ftl的 -->
+		<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+			<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+			<property name="prefix" value="/WEB-INF/page/" />
+			<property name="suffix" value=".jsp" />
+			<property name="contentType" value="text/html;charset=UTF-8" />
+		</bean>
+	</util:list>
+
+	<!-- 静态资源映射 -->
+	<mvc:default-servlet-handler/>
+	<!-- <mvc:resources location="/js/" mapping="/js/**" />
+	<mvc:resources location="/css/" mapping="/css/**" />
+	<mvc:resources location="/lib/" mapping="/lib/**" />
+	<mvc:resources location="/images/" mapping="/images/**" />
+	<mvc:resources location="/Hui-iconfont/" mapping="/Hui-iconfont/**" />
+	<mvc:resources location="/plugln/" mapping="/plugln/**" />
+	<mvc:resources location="/fonts/" mapping="/fonts/**" />
+	<mvc:resources mapping="/resources/**" location="/resources/" cache-period="31556926" />
+	<mvc:resources mapping="/uploads/**" location="/uploads/" cache-period="31556926" /> -->
+	<!-- Shiro <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"> <property name="proxyTargetClass" value="true" /> </bean> <bean 
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"> <property name="securityManager" ref="securityManager" /> </bean> -->
+
+</beans>

@@ -1,0 +1,193 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.IRoleDao">
+<!-- 新增的方法写在这里 -->
+
+
+<!-- 保存非空列,返回受影响的行数 -->
+	<insert id="saveSelective" useGeneratedKeys="true" keyProperty="Vo.id">
+		Insert Into role 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="Vo.rolename != null">rolename,</if>
+           
+		</trim>
+		<trim prefix="Values (" suffix=")" suffixOverrides=",">
+            <if test="Vo.rolename != null">#{Vo.rolename},</if>
+            
+		</trim>
+	</insert>
+    
+    <!-- 根据主键删除-->
+	<delete id="delete">
+		Delete From role
+		Where id = #{id}
+	</delete>
+    
+    <!-- 删除所有记录,返回受影响的行数 -->
+	<delete id="deleteAll">
+		Delete From role
+	</delete>
+    
+    <!-- 更新非空列,返回受影响的行数 -->
+	<update id="updateSelective">
+		Update role
+		<trim prefix="Set" suffixOverrides=",">
+            <if test="Vo.rolename != null">rolename = #{Vo.rolename},</if>
+		</trim>
+		Where role.id = #{Vo.id}
+	</update>
+    
+    <resultMap type="RoleVo" id="RM_Default">
+        <id column="Role_id" property="id"/>
+        <result column="Role_rolename" property="rolename"/>
+	</resultMap>
+    
+     <!-- ResultMap -->
+	<resultMap type="RoleVo" id="RM_getVo_Auto">
+		<discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,通过'__chooseRM'控制返回的列 -->
+	<select id="getVo_Auto" resultMap="RM_getVo_Auto">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	role	As	role
+		Where
+		role.id = #{id}
+	</select>
+    
+    <!-- 传入id,判断是否存在该记录 -->
+	<select id="isExist_Auto" resultType="boolean">
+		Select Count(id) > 0
+		From	role	As	role
+		Where
+		role.id = #{id}
+	</select>
+    
+    <!-- 查询记录数量 -->
+	<select id="queryCount_Auto" resultType="Long">
+		Select Count(role.id)
+		From	role	As	role
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+	</select>
+    
+    <resultMap type="RoleVo" id="RM_queryVos_Auto">
+        <discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 查询记录集合,通过'__chooseRM'控制返回的列 -->
+	<select id="queryVos_Auto" resultMap="RM_queryVos_Auto">
+		Select
+		<include refid="Sql_SelectColumns"/>
+		#{RoleSearch.chooseRM} As _chooseRM
+		From	role	As	role
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+		<include refid="Sql_Order"/>
+		Limit #{RoleSearch.offset},#{RoleSearch.limit}
+	</select>
+    
+
+    <resultMap type="RoleVo" id="RM_getVo_AdminView">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Role_id" property="id"/>
+        <result column="Role_rolename" property="rolename"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminView调用 -->
+	<select id="getVo_AdminView" resultMap="RM_getVo_AdminView">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	role	As	role
+		Where
+		role.id = #{id}
+	</select>
+    
+    <resultMap type="RoleVo" id="RM_getVo_preAdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Role_id" property="id"/>
+        <result column="Role_rolename" property="rolename"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供preAdminEdit调用 -->
+	<select id="getVo_preAdminEdit" resultMap="RM_getVo_preAdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	role	As	role
+		Where
+		role.id = #{id}
+	</select>
+    
+    <resultMap type="RoleVo" id="RM_getVo_AdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Role_id" property="id"/>
+        <result column="Role_rolename" property="rolename"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminEdit调用 -->
+	<select id="getVo_AdminEdit" resultMap="RM_getVo_AdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	role	As	role
+		Where
+		role.id = #{id}
+	</select>
+    
+    <resultMap type="RoleVo" id="RM_queryVos_AdminList">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Role_id" property="id"/>
+        <result column="Role_rolename" property="rolename"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <sql id="Sql_SelectColumns">
+        role.roleid As Role_roleid,
+        role.rolename As Role_rolename,
+	</sql>
+    
+    <sql id="Sql_Order">
+		<trim prefix="Order By ">
+    		<choose>
+                <when test="RoleSearch.sort != null">
+                    Role_${RoleSearch.sort} 
+                    <if test="RoleSearch.order != null">
+                        ${RoleSearch.order}
+                    </if>
+                </when>
+                <otherwise>
+                    Role_id Desc
+                </otherwise>
+            </choose>
+		</trim>
+	</sql>
+    
+    <sql id="Sql_Where">
+        <if test="RoleSearch.eqRoleid != null">
+			<![CDATA[ And role.roleid = #{RoleSearch.eqRoleid} ]]>
+		</if>
+		<if test="RoleSearch.neRoleid != null">
+			<![CDATA[ And role.roleid != #{RoleSearch.neRoleid} ]]>
+		</if>
+        <if test="RoleSearch.eqRolename != null">
+			<![CDATA[ And role.rolename = #{RoleSearch.eqRolename} ]]>
+		</if>
+		<if test="RoleSearch.lkRolename != null">
+			<![CDATA[ And role.rolename Like '%${RoleSearch.lkRolename}%' ]]>
+		</if>
+    </sql>
+</mapper>
+
+

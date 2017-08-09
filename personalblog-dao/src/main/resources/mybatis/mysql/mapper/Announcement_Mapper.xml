@@ -1,0 +1,227 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.IAnnouncementDao">
+<!-- 新增的方法写在这里 -->
+
+
+<!-- 保存非空列,返回受影响的行数 -->
+	<insert id="saveSelective" useGeneratedKeys="true" keyProperty="Vo.id">
+		Insert Into announcement 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="Vo.creatorId != null">creatorId,</if>
+            <if test="Vo.content != null">Content,</if>
+            <if test="Vo.createDate != null">CreateDate,</if>
+           
+		</trim>
+		<trim prefix="Values (" suffix=")" suffixOverrides=",">
+            <if test="Vo.creatorId != null">#{Vo.creatorId},</if>
+            <if test="Vo.content != null">#{Vo.content},</if>
+            <if test="Vo.createDate != null">#{Vo.createDate},</if>
+            
+		</trim>
+	</insert>
+    
+    <!-- 根据主键删除-->
+	<delete id="delete">
+		Delete From announcement
+		Where id = #{id}
+	</delete>
+    
+    <!-- 删除所有记录,返回受影响的行数 -->
+	<delete id="deleteAll">
+		Delete From announcement
+	</delete>
+    
+    <!-- 更新非空列,返回受影响的行数 -->
+	<update id="updateSelective">
+		Update announcement
+		<trim prefix="Set" suffixOverrides=",">
+            <if test="Vo.creatorId != null">creatorId = #{Vo.creatorId},</if>
+            <if test="Vo.content != null">Content = #{Vo.content},</if>
+            <if test="Vo.createDate != null">CreateDate = #{Vo.createDate},</if>
+		</trim>
+		Where announcement.id = #{Vo.id}
+	</update>
+    
+    <resultMap type="AnnouncementVo" id="RM_Default">
+        <id column="Announcement_id" property="id"/>
+        <result column="Announcement_creatorId" property="creatorId"/>
+        <result column="Announcement_content" property="content"/>
+        <result column="Announcement_createDate" property="createDate"/>
+	</resultMap>
+    
+     <!-- ResultMap -->
+	<resultMap type="AnnouncementVo" id="RM_getVo_Auto">
+		<discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,通过'__chooseRM'控制返回的列 -->
+	<select id="getVo_Auto" resultMap="RM_getVo_Auto">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	announcement	As	announcement
+		Where
+		announcement.id = #{id}
+	</select>
+    
+    <!-- 传入id,判断是否存在该记录 -->
+	<select id="isExist_Auto" resultType="boolean">
+		Select Count(id) > 0
+		From	announcement	As	announcement
+		Where
+		announcement.id = #{id}
+	</select>
+    
+    <!-- 查询记录数量 -->
+	<select id="queryCount_Auto" resultType="Long">
+		Select Count(announcement.id)
+		From	announcement	As	announcement
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+	</select>
+    
+    <resultMap type="AnnouncementVo" id="RM_queryVos_Auto">
+        <discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 查询记录集合,通过'__chooseRM'控制返回的列 -->
+	<select id="queryVos_Auto" resultMap="RM_queryVos_Auto">
+		Select
+		<include refid="Sql_SelectColumns"/>
+		#{AnnouncementSearch.chooseRM} As _chooseRM
+		From	announcement	As	announcement
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+		<include refid="Sql_Order"/>
+		Limit #{AnnouncementSearch.offset},#{AnnouncementSearch.limit}
+	</select>
+    
+
+    <resultMap type="AnnouncementVo" id="RM_getVo_AdminView">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Announcement_id" property="id"/>
+        <result column="Announcement_creatorId" property="creatorId"/>
+        <result column="Announcement_content" property="content"/>
+        <result column="Announcement_createDate" property="createDate"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminView调用 -->
+	<select id="getVo_AdminView" resultMap="RM_getVo_AdminView">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	announcement	As	announcement
+		Where
+		announcement.id = #{id}
+	</select>
+    
+    <resultMap type="AnnouncementVo" id="RM_getVo_preAdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Announcement_id" property="id"/>
+        <result column="Announcement_creatorId" property="creatorId"/>
+        <result column="Announcement_content" property="content"/>
+        <result column="Announcement_createDate" property="createDate"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供preAdminEdit调用 -->
+	<select id="getVo_preAdminEdit" resultMap="RM_getVo_preAdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	announcement	As	announcement
+		Where
+		announcement.id = #{id}
+	</select>
+    
+    <resultMap type="AnnouncementVo" id="RM_getVo_AdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Announcement_id" property="id"/>
+        <result column="Announcement_creatorId" property="creatorId"/>
+        <result column="Announcement_content" property="content"/>
+        <result column="Announcement_createDate" property="createDate"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminEdit调用 -->
+	<select id="getVo_AdminEdit" resultMap="RM_getVo_AdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	announcement	As	announcement
+		Where
+		announcement.id = #{id}
+	</select>
+    
+    <resultMap type="AnnouncementVo" id="RM_queryVos_AdminList">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Announcement_id" property="id"/>
+        <result column="Announcement_creatorId" property="creatorId"/>
+        <result column="Announcement_content" property="content"/>
+        <result column="Announcement_createDate" property="createDate"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <sql id="Sql_SelectColumns">
+        announcement.AnnouncementId As Announcement_announcementId,
+        announcement.creatorId As Announcement_creatorId,
+        announcement.Content As Announcement_content,
+        announcement.CreateDate As Announcement_createDate,
+	</sql>
+    
+    <sql id="Sql_Order">
+		<trim prefix="Order By ">
+    		<choose>
+                <when test="AnnouncementSearch.sort != null">
+                    Announcement_${AnnouncementSearch.sort} 
+                    <if test="AnnouncementSearch.order != null">
+                        ${AnnouncementSearch.order}
+                    </if>
+                </when>
+                <otherwise>
+                    Announcement_id Desc
+                </otherwise>
+            </choose>
+		</trim>
+	</sql>
+    
+    <sql id="Sql_Where">
+        <if test="AnnouncementSearch.eqAnnouncementId != null">
+			<![CDATA[ And announcement.AnnouncementId = #{AnnouncementSearch.eqAnnouncementId} ]]>
+		</if>
+		<if test="AnnouncementSearch.neAnnouncementId != null">
+			<![CDATA[ And announcement.AnnouncementId != #{AnnouncementSearch.neAnnouncementId} ]]>
+		</if>
+        <if test="AnnouncementSearch.eqCreatorId != null">
+			<![CDATA[ And announcement.creatorId = #{AnnouncementSearch.eqCreatorId} ]]>
+		</if>
+		<if test="AnnouncementSearch.neCreatorId != null">
+			<![CDATA[ And announcement.creatorId != #{AnnouncementSearch.neCreatorId} ]]>
+		</if>
+        <if test="AnnouncementSearch.eqContent != null">
+			<![CDATA[ And announcement.Content = #{AnnouncementSearch.eqContent} ]]>
+		</if>
+		<if test="AnnouncementSearch.lkContent != null">
+			<![CDATA[ And announcement.Content Like '%${AnnouncementSearch.lkContent}%' ]]>
+		</if>
+        <if test="AnnouncementSearch.eqCreateDate != null">
+			<![CDATA[ And date_format(announcement.CreateDate,'%Y-%m-%d') = date_format(#{AnnouncementSearch.eqCreateDate},'%Y-%m-%d') ]]>
+		</if>
+		<if test="AnnouncementSearch.geCreateDate != null">
+			<![CDATA[ And announcement.CreateDate >= #{AnnouncementSearch.geCreateDate} ]]>
+		</if>
+		<if test="AnnouncementSearch.ltCreateDate != null">
+			<![CDATA[ And announcement.CreateDate < #{AnnouncementSearch.ltCreateDate} ]]>
+		</if>
+        
+    </sql>
+</mapper>
+
+

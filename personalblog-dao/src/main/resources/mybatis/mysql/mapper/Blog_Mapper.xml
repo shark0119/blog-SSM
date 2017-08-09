@@ -1,0 +1,465 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.IBlogDao">
+<!-- 新增的方法写在这里 -->
+<!-- 添加博客 -->
+<insert id="addBlog" parameterType="com.hfxt.domain.vo.BlogVo">
+insert into blog(BlogId,creatorId,SectionId,BlogContentId,BlogNewLivenessId,CreateDate,
+ReleaseDate,Visiable,DynamicNotice,CommentApprove,DraftContent,checkArticle) 
+values(#{blogId},#{creatorId},#{sectionId},#{blogContentId},#{blogNewLivenessId}
+,now(),now(),#{visiable},#{dynamicNotice},#{commentApprove},#{draftContent},#{checkArticle})
+</insert>
+<!-- 查询所有的博客 其中DraftContent：1代表发布博客，2代表草稿箱博客,checkArticle：1代表审核通过，2代表审核不通过，3代表未审核-->
+<select id="findAllBlog" resultType="BlogcontentVo">
+select * from blog b,blogcontent bct ,user u,section s where 
+bct.BlogContentId=b.BlogContentId and b.creatorid=u.userid and
+b.sectionid=s.sectionid and b.DraftContent=1 and b.checkArticle=1
+</select>
+
+
+<!-- 查询所有的博客 其中DraftContent：1代表发布博客，2代表草稿箱博客,checkArticle：1代表审核通过，2代表审核不通过，3代表未审核-->
+<select id="findAllNotCheckBlog" resultType="BlogcontentVo">
+select * from blog b,blogcontent bct ,section s where 
+bct.BlogContentId=b.BlogContentId and 
+b.sectionid=s.sectionid and b.DraftContent=1 and (b.checkArticle=2 or b.checkArticle=3 )
+</select>
+
+
+<!-- 查询所有投稿未审批的博客按分页， 其中DraftContent：1代表发布博客，2代表草稿箱博客,checkArticle：1代表审核通过，2代表审核不通过，3代表未审核-->
+<select id="findAllNotCheckBlogPage" resultType="BlogcontentVo">
+select * from blog b,blogcontent bct ,section s where 
+bct.BlogContentId=b.BlogContentId and 
+b.sectionid=s.sectionid and b.DraftContent=1 and (b.checkArticle=2 or b.checkArticle=3 )
+
+limit #{0},#{1}
+</select>
+
+
+
+<!-- 查询所有的博客 其中DraftContent：1代表发布博客，2代表草稿箱博客,checkArticle：1代表审核通过，2代表审核不通过，3代表未审核-->
+<select id="findAllDraftBlog" resultType="BlogcontentVo">
+select * from blog b,blogcontent bct where 
+bct.BlogContentId=b.BlogContentId and b.DraftContent=2 and b.checkArticle=1
+</select>
+
+<!-- 查询最大ID的博客 -->
+<select id="getMaxId" resultType="Integer">
+select max(BlogId) from blog
+</select>
+
+<!-- 根据blogid获取博客 -->
+<select id="findBlogById" resultType="BlogVo" parameterType="Integer">
+SELECT * FROM blog b,blogcontent bct WHERE 
+bct.BlogContentId=b.BlogContentId AND b.blogId=#{blogId}
+</select>
+
+
+<!-- 查询所有的博客 其中1代表公开，2代表私密博客-->
+<select id="findAllPublicBlog" resultType="BlogcontentVo">
+select * from blog b,blogcontent bct where 
+bct.BlogContentId=b.BlogContentId and b.visiable=1
+</select>
+
+
+<!-- 根据ID删除博客 -->
+<delete id="deleteBlog" parameterType="Integer" >
+DELETE FROM blog WHERE blogContentId=#{blogContentId}
+</delete>
+
+<!--  根据ID修改博客  -->
+<update id="updateBlog" parameterType="com.hfxt.domain.vo.BlogVo">
+UPDATE blog SET sectionId=#{sectionId},visiable=#{visiable},checkArticle=#{checkArticle} WHERE blogContentId=#{blogContentId}
+</update>
+
+<!-- 根据当前登录的ID查询所有自己的博客（后台）draftContent:其中1代表发布博客，2代表草稿箱博客,checkArticle:1代表文章审核通过，2代表审核不通过 -->
+<select id="findBlogByUserId" resultType="BlogcontentVo" parameterType="Integer">
+SELECT * FROM blog b,blogcontent bgt,section s,user u WHERE b.creatorid=u.userid AND
+b.blogcontentid=bgt.blogcontentid AND b.sectionid=s.sectionid  and  u.userid=#{userId}
+ 
+</select>
+
+<!-- 根据当前登录的ID查询所有自己的草稿博客（后台）draftContent： 其中1代表发布博客，2代表草稿箱博客, checkArticle:1代表文章审核通过，2代表审核不通过-->
+<select id="findAllDraftBlogByUserId" resultType="BlogcontentVo" parameterType="Integer">
+SELECT * FROM blog b,blogcontent bgt,section s,user u WHERE b.creatorid=u.userid AND
+b.blogcontentid=bgt.blogcontentid AND b.sectionid=s.sectionid
+ AND u.userid=#{userId} AND b.draftContent=2 and b.checkArticle=1
+</select>
+
+
+<!-- 根据当前登录的ID查询所有自己要审核的博客（后台）draftContent:其中1代表发布博客，2代表草稿箱博客,checkArticle:1代表文章审核通过，2代表审核不通过 -->
+<select id="findNotCheckBlogByUserId" resultType="BlogcontentVo" parameterType="Integer">
+SELECT * FROM blog b,blogcontent bgt,section s,user u WHERE b.creatorid=u.userid AND
+b.blogcontentid=bgt.blogcontentid AND b.sectionid=s.sectionid 
+AND u.userid=#{userId} and b.checkArticle=2
+</select>
+
+
+
+
+<!-- 前台Index查询所有的博客分页 其中DraftContent：1代表发布博客，2代表草稿箱博客,checkArticle：1代表审核通过，2代表审核不通过，3代表未审核-->
+<select id="findIndexPage" resultType="BlogcontentVo">
+select * from blog b,blogcontent bct ,user u,section s where 
+bct.BlogContentId=b.BlogContentId and b.creatorid=u.userid and
+b.sectionid=s.sectionid and b.DraftContent=1 and b.checkArticle=1
+
+limit #{0},#{1}
+</select>
+
+
+<!-- 计算blog中的count -->
+<select id="findBlogCount" resultType="int">
+SELECT COUNT(0) FROM blog where checkArticle=1
+</select>
+
+<!-- 计算blog中未审核和审核不通过的的count -->
+<select id="findBlogCountNotCheckOrNotpass" resultType="int">
+SELECT COUNT(0) FROM blog  where checkArticle=2 or checkArticle=3
+</select>
+
+
+	<!-- //按栏目查找博客内容 -->
+
+<select id="findBlogContentBySectionName" resultType="BlogcontentVo" parameterType="String">
+SELECT * FROM blog b,blogcontent bct, section s WHERE 
+b.SectionId=s.SectionId AND b.BlogContentId=bct.BlogContentId AND s.SectionName=#{sectionName}
+</select>
+
+<!--  <resultMap type="com.hfxt.domain.vo.BlogVo" id="BlogVoResultMap">
+        <id column="BlogId" property="blogId"/>
+        <result column="creatorId" property="creatorId"/>
+        <result column="sectionId" property="sectionId"/>
+        <result column="blogContentId" property="blogContentId"/>
+        <result column="blogNewLivenessId" property="blogNewLivenessId"/>
+        <result column="createDate" property="createDate"/>
+        <result column="releaseDate" property="releaseDate"/>
+        <result column="visiable" property="visiable"/>
+        <result column="dynamicNotice" property="dynamicNotice"/>
+        <result column="commentApprove" property="commentApprove"/>
+         
+       
+       
+       <association property="blogcontentVo" resultMap="com.hfxt.dao.IBlogcontentDao.BlogcontentVoResultMap"/>
+    </resultMap> -->
+    
+
+
+   
+    
+    
+    
+<!-- 保存非空列,返回受影响的行数 -->
+	<insert id="saveSelective" useGeneratedKeys="true" keyProperty="Vo.id">
+		Insert Into blog 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="Vo.creatorId != null">creatorId,</if>
+            <if test="Vo.sectionId != null">SectionId,</if>
+            <if test="Vo.blogContentId != null">BlogContentId,</if>
+            <if test="Vo.blogNewLivenessId != null">BlogNewLivenessId,</if>
+            <if test="Vo.createDate != null">CreateDate,</if>
+            <if test="Vo.releaseDate != null">ReleaseDate,</if>
+            <if test="Vo.visiable != null">Visiable,</if>
+            <if test="Vo.dynamicNotice != null">DynamicNotice,</if>
+            <if test="Vo.commentApprove != null">CommentApprove,</if>
+           
+		</trim>
+		<trim prefix="Values (" suffix=")" suffixOverrides=",">
+            <if test="Vo.creatorId != null">#{Vo.creatorId},</if>
+            <if test="Vo.sectionId != null">#{Vo.sectionId},</if>
+            <if test="Vo.blogContentId != null">#{Vo.blogContentId},</if>
+            <if test="Vo.blogNewLivenessId != null">#{Vo.blogNewLivenessId},</if>
+            <if test="Vo.createDate != null">#{Vo.createDate},</if>
+            <if test="Vo.releaseDate != null">#{Vo.releaseDate},</if>
+            <if test="Vo.visiable != null">#{Vo.visiable},</if>
+            <if test="Vo.dynamicNotice != null">#{Vo.dynamicNotice},</if>
+            <if test="Vo.commentApprove != null">#{Vo.commentApprove},</if>
+            
+		</trim>
+	</insert>
+    
+    <!-- 根据主键删除-->
+	<delete id="delete">
+		Delete From blog
+		Where id = #{id}
+	</delete>
+    
+    <!-- 删除所有记录,返回受影响的行数 -->
+	<delete id="deleteAll">
+		Delete From blog
+	</delete>
+    
+    <!-- 更新非空列,返回受影响的行数 -->
+	<update id="updateSelective">
+		Update blog
+		<trim prefix="Set" suffixOverrides=",">
+            <if test="Vo.creatorId != null">creatorId = #{Vo.creatorId},</if>
+            <if test="Vo.sectionId != null">SectionId = #{Vo.sectionId},</if>
+            <if test="Vo.blogContentId != null">BlogContentId = #{Vo.blogContentId},</if>
+            <if test="Vo.blogNewLivenessId != null">BlogNewLivenessId = #{Vo.blogNewLivenessId},</if>
+            <if test="Vo.createDate != null">CreateDate = #{Vo.createDate},</if>
+            <if test="Vo.releaseDate != null">ReleaseDate = #{Vo.releaseDate},</if>
+            <if test="Vo.visiable != null">Visiable = #{Vo.visiable},</if>
+            <if test="Vo.dynamicNotice != null">DynamicNotice = #{Vo.dynamicNotice},</if>
+            <if test="Vo.commentApprove != null">CommentApprove = #{Vo.commentApprove},</if>
+		</trim>
+		Where blog.id = #{Vo.id}
+	</update>
+    
+    <resultMap type="BlogVo" id="RM_Default">
+        <id column="Blog_id" property="id"/>
+        <result column="Blog_creatorId" property="creatorId"/>
+        <result column="Blog_sectionId" property="sectionId"/>
+        <result column="Blog_blogContentId" property="blogContentId"/>
+        <result column="Blog_blogNewLivenessId" property="blogNewLivenessId"/>
+        <result column="Blog_createDate" property="createDate"/>
+        <result column="Blog_releaseDate" property="releaseDate"/>
+        <result column="Blog_visiable" property="visiable"/>
+        <result column="Blog_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blog_commentApprove" property="commentApprove"/>
+	</resultMap>
+    
+     <!-- ResultMap -->
+	<resultMap type="BlogVo" id="RM_getVo_Auto">
+		<discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,通过'__chooseRM'控制返回的列 -->
+	<select id="getVo_Auto" resultMap="RM_getVo_Auto">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blog	As	blog
+		Where
+		blog.id = #{id}
+	</select>
+    
+    <!-- 传入id,判断是否存在该记录 -->
+	<select id="isExist_Auto" resultType="boolean">
+		Select Count(id) > 0
+		From	blog	As	blog
+		Where
+		blog.id = #{id}
+	</select>
+    
+    <!-- 查询记录数量 -->
+	<select id="queryCount_Auto" resultType="Long">
+		Select Count(blog.id)
+		From	blog	As	blog
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+	</select>
+    
+    <resultMap type="BlogVo" id="RM_queryVos_Auto">
+        <discriminator javaType="int" column="_chooseRM">
+			<case value="0" resultMap="RM_Default" /><!-- Auto -->
+		</discriminator>
+	</resultMap>
+    
+    <!-- 查询记录集合,通过'__chooseRM'控制返回的列 -->
+	<select id="queryVos_Auto" resultMap="RM_queryVos_Auto">
+		Select
+		<include refid="Sql_SelectColumns"/>
+		#{BlogSearch.chooseRM} As _chooseRM
+		From	blog	As	blog
+        <trim prefix="Where" prefixOverrides="And | Or">
+			<include refid="Sql_Where"/>
+		</trim>
+		<include refid="Sql_Order"/>
+		Limit #{BlogSearch.offset},#{BlogSearch.limit}
+	</select>
+    
+    
+
+    <resultMap type="BlogVo" id="RM_getVo_AdminView">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blog_id" property="id"/>
+        <result column="Blog_creatorId" property="creatorId"/>
+        <result column="Blog_sectionId" property="sectionId"/>
+        <result column="Blog_blogContentId" property="blogContentId"/>
+        <result column="Blog_blogNewLivenessId" property="blogNewLivenessId"/>
+        <result column="Blog_createDate" property="createDate"/>
+        <result column="Blog_releaseDate" property="releaseDate"/>
+        <result column="Blog_visiable" property="visiable"/>
+        <result column="Blog_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blog_commentApprove" property="commentApprove"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminView调用 -->
+	<select id="getVo_AdminView" resultMap="RM_getVo_AdminView">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blog	As	blog
+		Where
+		blog.id = #{id}
+	</select>
+    
+    <resultMap type="BlogVo" id="RM_getVo_preAdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blog_id" property="id"/>
+        <result column="Blog_creatorId" property="creatorId"/>
+        <result column="Blog_sectionId" property="sectionId"/>
+        <result column="Blog_blogContentId" property="blogContentId"/>
+        <result column="Blog_blogNewLivenessId" property="blogNewLivenessId"/>
+        <result column="Blog_createDate" property="createDate"/>
+        <result column="Blog_releaseDate" property="releaseDate"/>
+        <result column="Blog_visiable" property="visiable"/>
+        <result column="Blog_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blog_commentApprove" property="commentApprove"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供preAdminEdit调用 -->
+	<select id="getVo_preAdminEdit" resultMap="RM_getVo_preAdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blog	As	blog
+		Where
+		blog.id = #{id}
+	</select>
+    
+    <resultMap type="BlogVo" id="RM_getVo_AdminEdit">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blog_id" property="id"/>
+        <result column="Blog_creatorId" property="creatorId"/>
+        <result column="Blog_sectionId" property="sectionId"/>
+        <result column="Blog_blogContentId" property="blogContentId"/>
+        <result column="Blog_blogNewLivenessId" property="blogNewLivenessId"/>
+        <result column="Blog_createDate" property="createDate"/>
+        <result column="Blog_releaseDate" property="releaseDate"/>
+        <result column="Blog_visiable" property="visiable"/>
+        <result column="Blog_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blog_commentApprove" property="commentApprove"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <!-- 根据主键查询一条记录,专供AdminEdit调用 -->
+	<select id="getVo_AdminEdit" resultMap="RM_getVo_AdminEdit">
+		Select
+		<include refid="Sql_SelectColumns" />
+		#{chooseRM} As _chooseRM
+		From	blog	As	blog
+		Where
+		blog.id = #{id}
+	</select>
+    
+    <resultMap type="BlogVo" id="RM_queryVos_AdminList">
+		<!-- <discriminator javaType="int" column="_chooseRM"> -->
+        <id column="Blog_id" property="id"/>
+        <result column="Blog_creatorId" property="creatorId"/>
+        <result column="Blog_sectionId" property="sectionId"/>
+        <result column="Blog_blogContentId" property="blogContentId"/>
+        <result column="Blog_blogNewLivenessId" property="blogNewLivenessId"/>
+        <result column="Blog_createDate" property="createDate"/>
+        <result column="Blog_releaseDate" property="releaseDate"/>
+        <result column="Blog_visiable" property="visiable"/>
+        <result column="Blog_dynamicNotice" property="dynamicNotice"/>
+        <result column="Blog_commentApprove" property="commentApprove"/>
+		<!-- </discriminator> -->
+	</resultMap>
+    
+    <sql id="Sql_SelectColumns">
+        blog.BlogId As Blog_blogId,
+        blog.creatorId As Blog_creatorId,
+        blog.SectionId As Blog_sectionId,
+        blog.BlogContentId As Blog_blogContentId,
+        blog.BlogNewLivenessId As Blog_blogNewLivenessId,
+        blog.CreateDate As Blog_createDate,
+        blog.ReleaseDate As Blog_releaseDate,
+        blog.Visiable As Blog_visiable,
+        blog.DynamicNotice As Blog_dynamicNotice,
+        blog.CommentApprove As Blog_commentApprove,
+	</sql>
+    
+    <sql id="Sql_Order">
+		<trim prefix="Order By ">
+    		<choose>
+                <when test="BlogSearch.sort != null">
+                    Blog_${BlogSearch.sort} 
+                    <if test="BlogSearch.order != null">
+                        ${BlogSearch.order}
+                    </if>
+                </when>
+                <otherwise>
+                    Blog_id Desc
+                </otherwise>
+            </choose>
+		</trim>
+	</sql>
+    
+    <sql id="Sql_Where">
+        <if test="BlogSearch.eqBlogId != null">
+			<![CDATA[ And blog.BlogId = #{BlogSearch.eqBlogId} ]]>
+		</if>
+		<if test="BlogSearch.neBlogId != null">
+			<![CDATA[ And blog.BlogId != #{BlogSearch.neBlogId} ]]>
+		</if>
+        <if test="BlogSearch.eqCreatorId != null">
+			<![CDATA[ And blog.creatorId = #{BlogSearch.eqCreatorId} ]]>
+		</if>
+		<if test="BlogSearch.neCreatorId != null">
+			<![CDATA[ And blog.creatorId != #{BlogSearch.neCreatorId} ]]>
+		</if>
+        <if test="BlogSearch.eqSectionId != null">
+			<![CDATA[ And blog.SectionId = #{BlogSearch.eqSectionId} ]]>
+		</if>
+		<if test="BlogSearch.neSectionId != null">
+			<![CDATA[ And blog.SectionId != #{BlogSearch.neSectionId} ]]>
+		</if>
+        <if test="BlogSearch.eqBlogContentId != null">
+			<![CDATA[ And blog.BlogContentId = #{BlogSearch.eqBlogContentId} ]]>
+		</if>
+		<if test="BlogSearch.neBlogContentId != null">
+			<![CDATA[ And blog.BlogContentId != #{BlogSearch.neBlogContentId} ]]>
+		</if>
+        <if test="BlogSearch.eqBlogNewLivenessId != null">
+			<![CDATA[ And blog.BlogNewLivenessId = #{BlogSearch.eqBlogNewLivenessId} ]]>
+		</if>
+		<if test="BlogSearch.neBlogNewLivenessId != null">
+			<![CDATA[ And blog.BlogNewLivenessId != #{BlogSearch.neBlogNewLivenessId} ]]>
+		</if>
+        <if test="BlogSearch.eqCreateDate != null">
+			<![CDATA[ And date_format(blog.CreateDate,'%Y-%m-%d') = date_format(#{BlogSearch.eqCreateDate},'%Y-%m-%d') ]]>
+		</if>
+		<if test="BlogSearch.geCreateDate != null">
+			<![CDATA[ And blog.CreateDate >= #{BlogSearch.geCreateDate} ]]>
+		</if>
+		<if test="BlogSearch.ltCreateDate != null">
+			<![CDATA[ And blog.CreateDate < #{BlogSearch.ltCreateDate} ]]>
+		</if>
+        
+        <if test="BlogSearch.eqReleaseDate != null">
+			<![CDATA[ And date_format(blog.ReleaseDate,'%Y-%m-%d') = date_format(#{BlogSearch.eqReleaseDate},'%Y-%m-%d') ]]>
+		</if>
+		<if test="BlogSearch.geReleaseDate != null">
+			<![CDATA[ And blog.ReleaseDate >= #{BlogSearch.geReleaseDate} ]]>
+		</if>
+		<if test="BlogSearch.ltReleaseDate != null">
+			<![CDATA[ And blog.ReleaseDate < #{BlogSearch.ltReleaseDate} ]]>
+		</if>
+        
+        <if test="BlogSearch.eqVisiable != null">
+			<![CDATA[ And blog.Visiable = #{BlogSearch.eqVisiable} ]]>
+		</if>
+		<if test="BlogSearch.neVisiable != null">
+			<![CDATA[ And blog.Visiable != #{BlogSearch.neVisiable} ]]>
+		</if>
+        <if test="BlogSearch.eqDynamicNotice != null">
+			<![CDATA[ And blog.DynamicNotice = #{BlogSearch.eqDynamicNotice} ]]>
+		</if>
+		<if test="BlogSearch.neDynamicNotice != null">
+			<![CDATA[ And blog.DynamicNotice != #{BlogSearch.neDynamicNotice} ]]>
+		</if>
+        <if test="BlogSearch.eqCommentApprove != null">
+			<![CDATA[ And blog.CommentApprove = #{BlogSearch.eqCommentApprove} ]]>
+		</if>
+		<if test="BlogSearch.neCommentApprove != null">
+			<![CDATA[ And blog.CommentApprove != #{BlogSearch.neCommentApprove} ]]>
+		</if>
+    </sql>
+</mapper>
+
+

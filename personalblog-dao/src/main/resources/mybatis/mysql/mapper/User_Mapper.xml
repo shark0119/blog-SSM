@@ -1,0 +1,80 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hfxt.dao.IUserDao">
+	
+	<update id="updateState"   parameterType="UserVo">
+		UPDATE `user`  set state=#{state}  WHERE userId =#{userId}
+	</update>
+	<update id="updateUserMessage" parameterType="UserVo">
+		UPDATE `user` SET accountEmail=#{accountEmail} , accountTel=#{accountTel} , nickName=#{nickName} WHERE userId=#{userId};
+	</update>
+	<update id="updatePassword" parameterType="UserVo" >
+		UPDATE `user` SET `password` =#{password} WHERE userId=#{userId};
+	</update>
+	
+	<resultMap type="UserVo" id="UserVoMap">
+		<result property="userId" column="UserId"/>
+		<result property="accountEmail" column="accountEmail"/>
+		<result property="accountTel" column="accountTel"/>
+		<result property="rolename" column="rolename"/>
+		<result property="amount" column="counts"/>
+		<result property="state" column="state"/>
+	</resultMap>
+	<!-- 查询所有用户信息 -->
+	<select id="getAllUser" resultMap="UserVoMap" >
+		SELECT s.*,COUNT(b.`BlogId`) AS counts FROM(SELECT u.`UserId`,u.`accountEmail`,u.`accountTel`,u.`state`,r.`rolename` FROM `user` u , role r WHERE r.`roleid`=u.`roleId`) s 
+		LEFT JOIN blog b ON s.UserId=b.`creatorId` GROUP BY s.userid;
+	</select>
+
+	<select id="getuserById" resultType="UserVo" parameterType="Integer">
+		select * from user where userid=#{id}
+	</select>
+	<!-- 新增的方法写在这里 -->
+	<insert id="addUserByEmail" parameterType="UserVo">
+		insert into user (accountEmail,password,state,roleId) 
+		values (#{accountEmail},#{password},#{state},#{roleId})
+	</insert>
+	<insert id="addUserByTel" parameterType="UserVo">
+		insert into user (accountTel,password,state,roleId) 
+		values (#{accountTel},#{password},#{state},#{roleId})
+	</insert>
+	<update id="updateUser" parameterType="UserVo">
+		update user
+		<set>
+			<if test="accountEmail!=null">
+				accountEmail=#{accountEmail},
+			</if>
+			<if test="accountTel!=null">
+				accountTel=#{accountTel},
+			</if>
+			<if test="password!=null">
+				password=#{password},
+			</if>
+			<if test="state!=null">
+				state=#{state},
+			</if>
+			<if test="roleId!=null">
+				roleId=#{roleId},
+			</if>
+		</set>
+		where userId = #{userId}
+	</update>
+	
+	<select id="getPsdByName" parameterType="String" resultType="UserVo">
+		select password from user 
+		where accountEmail=#{userName} or accountTel=#{userName}
+	</select>
+
+	<select id="getVoUserByName" parameterType="String" resultType="UserVo">
+		select * from user 
+		where accountEmail=#{userName} or accountTel=#{userName}
+	</select>
+	<select id="getRoleByUserName" parameterType="string" resultType="string">
+		select rolename
+		from user u, role r
+		where u.roleId = r.roleid
+		and (u.accountEmail=#{userName} or u.accountTel=#{userName});
+	</select>
+
+</mapper>
+
+
